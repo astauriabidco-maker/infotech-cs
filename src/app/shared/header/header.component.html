@@ -1,0 +1,109 @@
+<header class="header">
+  <div class="container header-container">
+    <!-- Logo -->
+    <a routerLink="/" class="logo">
+      <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="logo-text">Infotech</span>
+    </a>
+
+    <!-- Desktop Navigation -->
+    <nav class="nav-desktop">
+      <a routerLink="/products" routerLinkActive="active" class="nav-link">Produits</a>
+      <a routerLink="/favorites" routerLinkActive="active" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Favoris
+      </a>
+    </nav>
+
+    <!-- Actions -->
+    <div class="header-actions">
+      <!-- Cart -->
+      <a routerLink="/cart" class="cart-button">
+        <svg class="cart-icon" viewBox="0 0 24 24" fill="none">
+          <path d="M9 2L7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M17 6L15 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 6H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M18.74 6C18.5 10.5 18.34 13.5 18 18L6 18C5.66 13.5 5.5 10.5 5.26 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M9 10V14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M15 10V14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="cart-badge" *ngIf="cartService.cartSummary().itemCount > 0">
+          {{ cartService.cartSummary().itemCount }}
+        </span>
+      </a>
+
+      <!-- User Menu -->
+      @if (authService.isAuthenticated()) {
+        <div class="user-menu">
+          <button class="user-button" (click)="toggleMenu()">
+            <svg class="user-icon" viewBox="0 0 24 24" fill="none">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="user-name">{{ authService.currentUser()?.displayName }}</span>
+          </button>
+
+          <div class="dropdown-menu" [class.active]="isMenuOpen">
+            <a routerLink="/profile" class="dropdown-item" (click)="isMenuOpen = false">
+              <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2"/>
+                <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              Mon Profil
+            </a>
+            <a routerLink="/orders" class="dropdown-item" (click)="isMenuOpen = false">
+              <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M16 3H8a2 2 0 0 0-2 2v16l8-4 8 4V5a2 2 0 0 0-2-2z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              Mes Commandes
+            </a>
+            <hr class="dropdown-divider">
+            <button class="dropdown-item" (click)="logout()">
+              <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2"/>
+                <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2"/>
+                <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      } @else {
+        <a routerLink="/auth/login" class="btn btn-primary">Connexion</a>
+      }
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" (click)="toggleMenu()">
+      <svg *ngIf="!isMenuOpen" viewBox="0 0 24 24" fill="none">
+        <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2"/>
+        <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2"/>
+        <line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <svg *ngIf="isMenuOpen" viewBox="0 0 24 24" fill="none">
+        <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
+        <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" [class.active]="isMenuOpen">
+    <a routerLink="/products" class="mobile-menu-item" (click)="toggleMenu()">Produits</a>
+    <a routerLink="/favorites" class="mobile-menu-item" (click)="toggleMenu()">Favoris</a>
+    @if (authService.isAuthenticated()) {
+      <a routerLink="/profile" class="mobile-menu-item" (click)="toggleMenu()">Mon Profil</a>
+      <a routerLink="/orders" class="mobile-menu-item" (click)="toggleMenu()">Mes Commandes</a>
+      <button class="mobile-menu-item" (click)="logout()">Déconnexion</button>
+    } @else {
+      <a routerLink="/auth/login" class="mobile-menu-item" (click)="toggleMenu()">Connexion</a>
+      <a routerLink="/auth/register" class="mobile-menu-item" (click)="toggleMenu()">Inscription</a>
+    }
+  </div>
+</header>

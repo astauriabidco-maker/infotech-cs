@@ -1,0 +1,194 @@
+<app-header></app-header>
+
+<main class="order-confirmation-page">
+  <div class="container">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Chargement de votre commande...</p>
+      </div>
+    } @else if (order()) {
+      <!-- Success Banner -->
+      <div class="success-banner">
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.1"/>
+            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h1>Merci pour votre commande !</h1>
+        <p class="confirmation-message">
+          Votre commande a été confirmée et sera traitée dans les plus brefs délais.
+        </p>
+      </div>
+
+      <!-- Order Info Cards -->
+      <div class="info-cards">
+        <!-- Numéro de commande -->
+        <div class="info-card">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="card-content">
+            <span class="card-label">Numéro de commande</span>
+            <strong class="card-value">{{ orderNumber() }}</strong>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="info-card">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="card-content">
+            <span class="card-label">Confirmation envoyée à</span>
+            <strong class="card-value">votre adresse email</strong>
+          </div>
+        </div>
+
+        <!-- Livraison estimée -->
+        <div class="info-card">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m-4 0v-5m4 5v-5m6 5a2 2 0 104 0m-4 0a2 2 0 114 0m-4 0v-5m4 5v-5" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="card-content">
+            <span class="card-label">Livraison estimée</span>
+            <strong class="card-value">{{ getEstimatedDeliveryDate() }}</strong>
+          </div>
+        </div>
+
+        <!-- Montant total -->
+        <div class="info-card highlight">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="card-content">
+            <span class="card-label">Montant total</span>
+            <strong class="card-value price">{{ order()!.total | number:'1.2-2' }} €</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Details -->
+      <div class="order-details">
+        <h2>Détails de votre commande</h2>
+        
+        <div class="details-grid">
+          <!-- Produits commandés -->
+          <div class="details-section">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              Articles commandés
+            </h3>
+            <div class="items-list">
+              @for (item of order()!.items; track item.id) {
+                <div class="order-item">
+                  <div class="item-details">
+                    <span class="item-name">{{ item.productTitle }}</span>
+                    <span class="item-quantity">Quantité : {{ item.quantity }}</span>
+                  </div>
+                  <span class="item-price">{{ item.price * item.quantity | number:'1.2-2' }} €</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Adresse de livraison -->
+          <div class="details-section">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke="currentColor" stroke-width="2"/>
+                <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              Adresse de livraison
+            </h3>
+            <div class="address-info">
+              <p><strong>Adresse renseignée lors de la commande</strong></p>
+              <p class="info-text">Votre commande sera expédiée à l'adresse que vous avez indiquée lors du processus de commande.</p>
+              <p class="info-text">Vous recevrez un email de confirmation avec tous les détails de livraison.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button class="btn btn-primary btn-lg" routerLink="/orders/{{ order()!.id }}">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2"/>
+            <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Suivre ma commande
+        </button>
+
+        <button class="btn btn-secondary btn-lg" routerLink="/products">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Continuer mes achats
+        </button>
+
+        <button class="btn btn-outline" (click)="downloadInvoice()">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Télécharger la facture
+        </button>
+
+        <button class="btn btn-outline" (click)="sendConfirmationEmail()" [disabled]="emailSending()">
+          @if (emailSending()) {
+            <div class="btn-spinner"></div>
+            Envoi en cours...
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            Renvoyer l'email de confirmation
+          }
+        </button>
+      </div>
+
+      <!-- Help Section -->
+      <div class="help-section">
+        <div class="help-card">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3m.08 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <h3>Besoin d'aide ?</h3>
+          <p>Notre équipe est là pour vous assister</p>
+          <a href="mailto:support@infotech.com" class="help-link">Contactez-nous</a>
+        </div>
+
+        <div class="help-card">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <h3>Conditions de retour</h3>
+          <p>30 jours pour changer d'avis</p>
+          <a routerLink="/help/returns" class="help-link">En savoir plus</a>
+        </div>
+
+        <div class="help-card">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <h3>Livraison</h3>
+          <p>Suivez votre colis en temps réel</p>
+          <a routerLink="/orders/{{ order()!.id }}" class="help-link">Suivre le colis</a>
+        </div>
+      </div>
+
+    }
+  </div>
+</main>

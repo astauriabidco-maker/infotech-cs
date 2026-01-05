@@ -1,0 +1,747 @@
+<app-header></app-header>
+
+<main class="product-detail-page">
+  @if (isLoading()) {
+    <div class="container">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Chargement du produit...</p>
+      </div>
+    </div>
+  } @else if (product()) {
+    <div class="container">
+      <!-- Breadcrumb Navigation -->
+      <nav class="breadcrumb" aria-label="Fil d'Ariane">
+        <a routerLink="/" class="breadcrumb-item">
+          <svg class="breadcrumb-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2"/>
+            <polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Accueil
+        </a>
+        <svg class="breadcrumb-separator" viewBox="0 0 24 24" fill="none">
+          <polyline points="9 18 15 12 9 6" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <a routerLink="/products" class="breadcrumb-item">Produits</a>
+        <svg class="breadcrumb-separator" viewBox="0 0 24 24" fill="none">
+          <polyline points="9 18 15 12 9 6" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span class="breadcrumb-item active">{{ product()?.title }}</span>
+      </nav>
+
+      <div class="product-detail">
+        <!-- Images Gallery -->
+        <div class="gallery">
+          <div class="main-image">
+            <img [src]="getMainImage()" [alt]="product()?.title">
+          </div>
+          @if (product()?.images && product()!.images.length > 1) {
+            <div class="thumbnails">
+              @for (image of product()!.images; track $index) {
+                <button 
+                  class="thumbnail"
+                  [class.active]="selectedImage() === $index"
+                  (click)="selectImage($index)">
+                  <img [src]="getThumbnailImage($index)" [alt]="product()?.title">
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Product Info -->
+        <div class="product-info">
+          <div class="product-header">
+            <span class="product-brand">{{ product()?.brand }}</span>
+            <div class="badge" [class.badge-success]="product()?.condition === 'new'">
+              {{ product()?.condition }}
+            </div>
+          </div>
+
+          <h1 class="product-title">{{ product()?.title }}</h1>
+
+          @if (product()?.categoryName) {
+            <p class="product-category">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zm-9 9h7v7H4v-7zm9 0h7v7h-7v-7z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              {{ product()?.categoryName }}
+            </p>
+          }
+
+          <!-- Section Offre Recommandée (Style Back Market) -->
+          @if (recommendedListing()) {
+            <div class="recommended-offer-section">
+              <div class="best-offer-badge">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/>
+                </svg>
+                Meilleure offre
+              </div>
+
+              <div class="recommended-listing">
+                <div class="listing-main-info">
+                  <div class="price-block">
+                    <div class="current-price">{{ recommendedListing()!.price | number:'1.2-2' }} €</div>
+                    <div class="seller-info">
+                      <span>Vendu par</span>
+                      <strong>{{ recommendedListing()!.sellerShopName }}</strong>
+                    </div>
+                  </div>
+
+                  <div class="condition-block">
+                    <span class="condition-badge" [style.background-color]="getConditionColor(recommendedListing()!.conditionNote)">
+                      {{ getConditionLabel(recommendedListing()!.conditionNote) }}
+                    </span>
+                    @if (recommendedListing()!.quantity <= 5) {
+                      <span class="stock-warning">Plus que {{ recommendedListing()!.quantity }} en stock</span>
+                    } @else {
+                      <span class="stock-ok">En stock</span>
+                    }
+                  </div>
+                </div>
+
+                @if (recommendedListing()!.conditionNote) {
+                  <p class="condition-description">{{ recommendedListing()!.conditionNote }}</p>
+                }
+              </div>
+
+              @if (listings().length > 1) {
+                <button class="view-all-offers-btn" (click)="openAllOffersModal()">
+                  <span>Voir toutes les offres ({{ listings().length }})</span>
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              }
+            </div>
+          } @else {
+            <div class="no-listings">
+              <p>Aucune offre disponible pour le moment</p>
+            </div>
+          }
+
+          <!-- Quantity Selector -->
+          @if (selectedListing()) {
+            <div class="quantity-selector">
+              <label class="quantity-label">Quantité</label>
+              <div class="quantity-controls">
+                <button 
+                  class="quantity-btn" 
+                  (click)="decrementQuantity()"
+                  [disabled]="quantity() <= 1">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </button>
+                <input type="number" class="quantity-input" [value]="quantity()" readonly>
+                <button 
+                  class="quantity-btn" 
+                  (click)="incrementQuantity()"
+                  [disabled]="quantity() >= availableStock()">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2"/>
+                    <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </button>
+              </div>
+              <span class="stock-info">{{ availableStock() }} disponible(s)</span>
+            </div>
+          }
+
+          <!-- Actions -->
+          <div class="product-actions">
+            <button 
+              class="btn btn-primary btn-lg add-to-cart-btn" 
+              (click)="addToCart()"
+              [disabled]="!selectedListing() || addingToCart() || availableStock() === 0">
+              @if (addingToCart()) {
+                <div class="spinner-small"></div>
+                Ajout en cours...
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M9 2L7 6M17 6L15 2M3 6h18M18.74 6l-1.89 12.36A2 2 0 0 1 14.88 20H9.12a2 2 0 0 1-1.97-1.64L5.26 6" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                @if (!selectedListing()) {
+                  Aucune offre disponible
+                } @else if (availableStock() === 0) {
+                  Rupture de stock
+                } @else {
+                  Ajouter au panier
+                }
+              }
+            </button>
+          </div>
+
+          <!-- Product Description -->
+          <div class="product-description">
+            <h3 class="description-title">Description</h3>
+            <p class="description-text">{{ product()?.description || 'Aucune description disponible' }}</p>
+          </div>
+
+          <!-- Passeport Numérique intégré -->
+          <div class="eco-passport-section">
+            <div class="eco-passport-header" (click)="togglePassport()">
+              <div class="header-left">
+                <span class="eco-icon">🌱</span>
+                <h3>Passeport Numérique Produit</h3>
+              </div>
+              <svg 
+                class="chevron" 
+                [class.rotated]="showPassport()"
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </div>
+            
+            @if (showPassport()) {
+              <div class="passport-content-embedded">
+                @if (loadingPassport()) {
+                  <div class="loading-passport">
+                    <div class="spinner"></div>
+                    <p>Chargement des données environnementales...</p>
+                  </div>
+                } @else if (passportError()) {
+                  <div class="passport-error">
+                    <p>{{ passportError() }}</p>
+                  </div>
+                } @else if (digitalPassport()) {
+                  <!-- Tabs compacts -->
+                  <div class="passport-tabs-compact">
+                    <button 
+                      [class.active]="activePassportTab() === 'carbon'"
+                      (click)="setPassportTab('carbon')">
+                      🌱 Carbone
+                    </button>
+                    <button 
+                      [class.active]="activePassportTab() === 'materials'"
+                      (click)="setPassportTab('materials')">
+                      📦 Matériaux
+                    </button>
+                    <button 
+                      [class.active]="activePassportTab() === 'durability'"
+                      (click)="setPassportTab('durability')">
+                      🔧 Durabilité
+                    </button>
+                    <button 
+                      [class.active]="activePassportTab() === 'certifications'"
+                      (click)="setPassportTab('certifications')">
+                      ✓ Certifications
+                    </button>
+                    <button 
+                      [class.active]="activePassportTab() === 'recycling'"
+                      (click)="setPassportTab('recycling')">
+                      ♻️ Recyclage
+                    </button>
+                  </div>
+
+                  <!-- Contenu du tab actif -->
+                  <div class="passport-tab-content">
+                    @if (activePassportTab() === 'carbon') {
+                      <div class="carbon-compact">
+                        <div class="carbon-score">
+                          <div class="score-badge" [style.background]="getScoreColor(digitalPassport()!.carbonFootprint.score)">
+                            {{ digitalPassport()!.carbonFootprint.score }}
+                          </div>
+                          <div class="score-info">
+                            <strong>{{ digitalPassport()!.carbonFootprint.totalCO2 }} kg CO₂</strong>
+                            <span>Empreinte totale</span>
+                          </div>
+                        </div>
+                        <div class="carbon-breakdown-compact">
+                          <div class="breakdown-item">
+                            <span>🏭 Fabrication</span>
+                            <strong>{{ digitalPassport()!.carbonFootprint.manufacturing }} kg</strong>
+                          </div>
+                          <div class="breakdown-item">
+                            <span>🚚 Transport</span>
+                            <strong>{{ digitalPassport()!.carbonFootprint.transportation }} kg</strong>
+                          </div>
+                          <div class="breakdown-item">
+                            <span>⚡ Utilisation</span>
+                            <strong>{{ digitalPassport()!.carbonFootprint.usage }} kg</strong>
+                          </div>
+                          <div class="breakdown-item">
+                            <span>🗑️ Fin de vie</span>
+                            <strong>{{ digitalPassport()!.carbonFootprint.endOfLife }} kg</strong>
+                          </div>
+                        </div>
+                      </div>
+                    }
+
+                    @if (activePassportTab() === 'materials') {
+                      <div class="materials-compact">
+                        @for (material of digitalPassport()!.materials; track material.name) {
+                          <div class="material-item">
+                            <div class="material-info">
+                              <strong>{{ material.name }}</strong>
+                              <span>{{ material.percentage }}%</span>
+                            </div>
+                            <div class="material-tags">
+                              @if (material.recycled) { <span class="tag">♻️ Recyclé</span> }
+                              @if (material.renewable) { <span class="tag">🌱 Renouvelable</span> }
+                              @if (material.recyclable) { <span class="tag">🔄 Recyclable</span> }
+                            </div>
+                          </div>
+                        }
+                        <div class="traceability-info">
+                          <p><strong>� Origine :</strong> {{ digitalPassport()!.traceability.originCountry }}</p>
+                          <p><strong>🏭 Fabricant :</strong> {{ digitalPassport()!.traceability.manufacturer }}</p>
+                        </div>
+                      </div>
+                    }
+
+                    @if (activePassportTab() === 'durability') {
+                      <div class="durability-compact">
+                        <div class="durability-score">
+                          <div class="score-badge" [style.background]="getScoreColor(digitalPassport()!.durability.repairabilityIndex)">
+                            {{ digitalPassport()!.durability.repairabilityIndex }}
+                          </div>
+                          <div class="score-info">
+                            <strong>{{ digitalPassport()!.durability.repairabilityScore }}/10</strong>
+                            <span>Indice de réparabilité</span>
+                          </div>
+                        </div>
+                        <div class="durability-details">
+                          @if (digitalPassport()!.durability.expectedLifespanYears) {
+                            <p>⏱️ <strong>Durée de vie :</strong> {{ digitalPassport()!.durability.expectedLifespanYears }} ans</p>
+                          }
+                          <p>🔧 <strong>Pièces détachées :</strong> {{ digitalPassport()!.durability.sparePartsAvailable ? 'Disponibles' : 'Non disponibles' }}</p>
+                          @if (digitalPassport()!.durability.warrantyYears) {
+                            <p>📜 <strong>Garantie :</strong> {{ digitalPassport()!.durability.warrantyYears }} an(s)</p>
+                          }
+                        </div>
+                      </div>
+                    }
+
+                    @if (activePassportTab() === 'certifications') {
+                      <div class="certifications-compact">
+                        @if (digitalPassport()!.certifications.length > 0) {
+                          @for (cert of digitalPassport()!.certifications; track cert.name) {
+                            <div class="cert-item">
+                              <div class="cert-icon">✓</div>
+                              <div class="cert-info">
+                                <strong>{{ cert.name }}</strong>
+                                <span>{{ cert.issuer }}</span>
+                              </div>
+                            </div>
+                          }
+                        } @else {
+                          <p class="no-data">Aucune certification disponible</p>
+                        }
+                      </div>
+                    }
+
+                    @if (activePassportTab() === 'recycling') {
+                      <div class="recycling-compact">
+                        <div class="recycling-stat">
+                          <strong>{{ digitalPassport()!.recyclingInfo.recyclablePercentage }}%</strong>
+                          <span>du produit recyclable</span>
+                        </div>
+                        @if (digitalPassport()!.recyclingInfo.instructions) {
+                          <p class="instructions">{{ digitalPassport()!.recyclingInfo.instructions }}</p>
+                        }
+                        @if (digitalPassport()!.recyclingInfo.collectionPoints && digitalPassport()!.recyclingInfo.collectionPoints!.length > 0) {
+                          <div class="collection-points-compact">
+                            <h4>📍 Points de collecte proches</h4>
+                            @for (point of digitalPassport()!.recyclingInfo.collectionPoints; track point.name) {
+                              <div class="point-item">
+                                <strong>{{ point.name }}</strong>
+                                <span>{{ point.distance }}</span>
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Product Features -->
+          <div class="product-features">
+            <button class="feature" (click)="openFeatureSidenav('certified')">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2"/>
+                <polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span>Produit certifié et testé</span>
+            </button>
+            <button class="feature" (click)="openFeatureSidenav('warranty')">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span>Garantie 12 mois</span>
+            </button>
+            <button class="feature" (click)="openFeatureSidenav('return')">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke="currentColor" stroke-width="2"/>
+                <path d="M3 3v5h5" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span>Retour sous 30 jours</span>
+            </button>
+            <button class="feature" (click)="openFeatureSidenav('delivery')">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M20 7h-9M14 3v4M6 21V7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span>Livraison 24h offerte</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal: Toutes les offres -->
+  @if (showAllOffersModal()) {
+    <div class="modal-overlay" (click)="closeAllOffersModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Toutes les offres</h2>
+          <button class="close-btn" (click)="closeAllOffersModal()">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="offers-table">
+            <div class="table-header">
+              <div class="col-seller">Vendeur</div>
+              <div class="col-condition">État</div>
+              <div class="col-price">Prix</div>
+              <div class="col-stock">Stock</div>
+              <div class="col-action"></div>
+            </div>
+
+            @for (listingScore of sortedListings(); track listingScore.listing.id) {
+              <div class="table-row" [class.recommended]="listingScore.isRecommended">
+                @if (listingScore.isRecommended) {
+                  <div class="recommended-badge">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/>
+                    </svg>
+                    Meilleure offre
+                  </div>
+                }
+
+                <div class="col-seller">
+                  <strong>{{ listingScore.listing.sellerShopName }}</strong>
+                  @if (listingScore.listing.conditionNote) {
+                    <p class="note">{{ listingScore.listing.conditionNote }}</p>
+                  }
+                </div>
+
+                <div class="col-condition">
+                  <span class="condition-badge" [style.background-color]="getConditionColor(listingScore.listing.conditionNote)">
+                    {{ getConditionLabel(listingScore.listing.conditionNote) }}
+                  </span>
+                </div>
+
+                <div class="col-price">
+                  <strong>{{ listingScore.listing.price | number:'1.2-2' }} €</strong>
+                </div>
+
+                <div class="col-stock">
+                  @if (listingScore.listing.quantity <= 5) {
+                    <span class="stock-warning">{{ listingScore.listing.quantity }} restant(s)</span>
+                  } @else {
+                    <span class="stock-ok">En stock</span>
+                  }
+                </div>
+
+                <div class="col-action">
+                  <button class="btn-select" (click)="selectListingFromModal(listingScore.listing)">
+                    @if (selectedListing()?.id === listingScore.listing.id) {
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      Sélectionné
+                    } @else {
+                      Sélectionner
+                    }
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="modal-info">
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <p>Notre algorithme sélectionne la meilleure offre en fonction du rapport qualité/prix et de la disponibilité</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Feature Sidenav -->
+  @if (showFeatureSidenav()) {
+    <div class="sidenav-overlay" (click)="closeFeatureSidenav()">
+      <div class="sidenav" (click)="$event.stopPropagation()">
+        <div class="sidenav-header">
+          <h2>{{ getFeatureTitle() }}</h2>
+          <button class="close-btn" (click)="closeFeatureSidenav()">
+            <svg viewBox="0 0 24 24" fill="none">
+              <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
+              <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="sidenav-content">
+          @switch (currentFeature()) {
+            @case ('certified') {
+              <div class="feature-detail">
+                <div class="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2"/>
+                    <polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <h3>Produit Certifié et Testé</h3>
+                <p class="feature-subtitle">Qualité garantie par nos experts</p>
+
+                <div class="feature-section">
+                  <h4>🔍 Contrôle Qualité Rigoureux</h4>
+                  <p>Chaque produit passe par un processus de certification en 52 points avant d'être mis en vente :</p>
+                  <ul>
+                    <li><strong>Tests fonctionnels :</strong> Vérification de toutes les fonctionnalités (écran, batterie, caméra, connectivité)</li>
+                    <li><strong>Tests esthétiques :</strong> Inspection minutieuse de l'état cosmétique</li>
+                    <li><strong>Tests de performance :</strong> Benchmarks pour garantir les performances attendues</li>
+                    <li><strong>Tests de sécurité :</strong> Vérification de l'authenticité et absence de logiciels malveillants</li>
+                  </ul>
+                </div>
+
+                <div class="feature-section">
+                  <h4>✅ Nos Certifications</h4>
+                  <ul>
+                    <li><strong>Certification ISO 9001 :</strong> Gestion de la qualité</li>
+                    <li><strong>Norme européenne :</strong> Conformité CE pour tous les appareils électroniques</li>
+                    <li><strong>Test batterie :</strong> Capacité minimum de 80% garantie</li>
+                    <li><strong>Traçabilité :</strong> Numéro de série vérifié et historique documenté</li>
+                  </ul>
+                </div>
+
+                <div class="feature-section">
+                  <h4>🏆 Engagement Qualité</h4>
+                  <p>Si votre produit ne correspond pas à la description ou présente un défaut non mentionné, nous nous engageons à :</p>
+                  <ul>
+                    <li>Remplacer le produit gratuitement</li>
+                    <li>Rembourser intégralement sous 48h</li>
+                    <li>Prendre en charge les frais de retour</li>
+                  </ul>
+                </div>
+              </div>
+            }
+
+            @case ('warranty') {
+              <div class="feature-detail">
+                <div class="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <h3>Garantie 12 Mois</h3>
+                <p class="feature-subtitle">Votre tranquillité d'esprit assurée</p>
+
+                <div class="feature-section">
+                  <h4>🛡️ Couverture Complète</h4>
+                  <p>Notre garantie de 12 mois couvre :</p>
+                  <ul>
+                    <li><strong>Pannes matérielles :</strong> Écran, batterie, carte mère, composants internes</li>
+                    <li><strong>Dysfonctionnements logiciels :</strong> Problèmes système, bugs récurrents</li>
+                    <li><strong>Défauts de fabrication :</strong> Tout vice caché ou défaut non apparent à l'achat</li>
+                    <li><strong>Pièces et main d'œuvre :</strong> Réparation gratuite par nos techniciens certifiés</li>
+                  </ul>
+                </div>
+
+                <div class="feature-section">
+                  <h4>⚡ Activation Immédiate</h4>
+                  <p>La garantie démarre dès la réception de votre commande. Aucune démarche administrative nécessaire !</p>
+                </div>
+
+                <div class="feature-section">
+                  <h4>🔧 Processus de Garantie</h4>
+                  <ol>
+                    <li><strong>Contactez-nous :</strong> Par téléphone, email ou chat en ligne</li>
+                    <li><strong>Diagnostic :</strong> Notre équipe identifie le problème (à distance si possible)</li>
+                    <li><strong>Retour gratuit :</strong> Nous vous envoyons une étiquette prépayée</li>
+                    <li><strong>Réparation/Remplacement :</strong> Sous 5 à 7 jours ouvrés</li>
+                    <li><strong>Renvoi gratuit :</strong> Votre produit réparé vous est retourné sans frais</li>
+                  </ol>
+                </div>
+
+                <div class="feature-section">
+                  <h4>📋 Exclusions</h4>
+                  <p class="info-text">La garantie ne couvre pas :</p>
+                  <ul>
+                    <li>Dommages accidentels (chute, liquide, choc)</li>
+                    <li>Usure normale (rayures superficielles, décoloration)</li>
+                    <li>Modifications non autorisées</li>
+                    <li>Accessoires (câbles, écouteurs, chargeurs)</li>
+                  </ul>
+                  <p class="info-text"><em>💡 Astuce : Pour ces risques, découvrez notre assurance "Sérénité+" disponible en option.</em></p>
+                </div>
+              </div>
+            }
+
+            @case ('return') {
+              <div class="feature-detail">
+                <div class="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke="currentColor" stroke-width="2"/>
+                    <path d="M3 3v5h5" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <h3>Retour Gratuit sous 30 Jours</h3>
+                <p class="feature-subtitle">Changez d'avis en toute liberté</p>
+
+                <div class="feature-section">
+                  <h4>🎯 Politique de Retour Flexible</h4>
+                  <p>Nous comprenons que l'achat en ligne peut être incertain. C'est pourquoi nous offrons 30 jours complets pour changer d'avis, sans avoir à vous justifier.</p>
+                </div>
+
+                <div class="feature-section">
+                  <h4>✅ Conditions du Retour</h4>
+                  <ul>
+                    <li><strong>Délai :</strong> 30 jours calendaires à partir de la réception</li>
+                    <li><strong>État du produit :</strong> Emballage d'origine, accessoires complets, sans rayures ajoutées</li>
+                    <li><strong>Motif :</strong> Aucune justification nécessaire ("ne me convient pas" suffit)</li>
+                    <li><strong>Frais :</strong> 100% gratuit, y compris les frais de retour</li>
+                  </ul>
+                </div>
+
+                <div class="feature-section">
+                  <h4>📦 Comment Retourner Votre Produit</h4>
+                  <ol>
+                    <li><strong>Demandez un retour :</strong> Depuis votre compte ou par email</li>
+                    <li><strong>Recevez l'étiquette :</strong> Nous vous envoyons une étiquette prépayée par email</li>
+                    <li><strong>Emballez le produit :</strong> Dans son emballage d'origine avec tous les accessoires</li>
+                    <li><strong>Déposez le colis :</strong> Dans un point relais ou une boîte postale</li>
+                    <li><strong>Recevez votre remboursement :</strong> Sous 48h après réception et contrôle</li>
+                  </ol>
+                </div>
+
+                <div class="feature-section">
+                  <h4>💰 Remboursement</h4>
+                  <ul>
+                    <li><strong>Montant :</strong> 100% du prix d'achat (produit + livraison initiale)</li>
+                    <li><strong>Méthode :</strong> Même moyen de paiement que l'achat original</li>
+                    <li><strong>Délai :</strong> 2 à 5 jours ouvrés selon votre banque</li>
+                  </ul>
+                </div>
+
+                <div class="feature-section">
+                  <h4>⚠️ Cas Particuliers</h4>
+                  <ul>
+                    <li><strong>Produit défectueux :</strong> Retour accepté même après 30 jours (garantie)</li>
+                    <li><strong>Erreur de notre part :</strong> Retour + frais compensés + geste commercial</li>
+                    <li><strong>Échange :</strong> Possible contre un autre produit de valeur égale ou supérieure</li>
+                  </ul>
+                </div>
+              </div>
+            }
+
+            @case ('delivery') {
+              <div class="feature-detail">
+                <div class="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M20 7h-9M14 3v4M6 21V7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <h3>Livraison 24h Offerte</h3>
+                <p class="feature-subtitle">Recevez votre produit en express</p>
+
+                <div class="feature-section">
+                  <h4>🚀 Livraison Express Gratuite</h4>
+                  <p>Bénéficiez d'une livraison ultra-rapide sans frais supplémentaires pour tous les produits en stock.</p>
+                  <ul>
+                    <li><strong>Commande avant 16h :</strong> Livraison le lendemain avant 13h</li>
+                    <li><strong>Commande après 16h :</strong> Livraison sous 48h</li>
+                    <li><strong>Weekend et jours fériés :</strong> Livraison le jour ouvré suivant</li>
+                  </ul>
+                </div>
+
+                <div class="feature-section">
+                  <h4>📍 Options de Livraison</h4>
+                  <ul>
+                    <li><strong>À domicile :</strong> Directement chez vous ou à votre bureau
+                      <ul class="sub-list">
+                        <li>Créneau de livraison de 2h (8h-10h, 10h-12h, 14h-16h, 16h-18h)</li>
+                        <li>SMS/Email 1h avant la livraison</li>
+                        <li>Remise en main propre avec signature</li>
+                      </ul>
+                    </li>
+                    <li><strong>Point relais :</strong> Plus de 15 000 points en France
+                      <ul class="sub-list">
+                        <li>Horaires étendus (7j/7 pour certains points)</li>
+                        <li>Conservation 14 jours</li>
+                        <li>SMS dès que votre colis est disponible</li>
+                      </ul>
+                    </li>
+                    <li><strong>Consigne automatique :</strong> Récupération 24h/24
+                      <ul class="sub-list">
+                        <li>Code de retrait par SMS</li>
+                        <li>Disponible dans les gares et centres commerciaux</li>
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="feature-section">
+                  <h4>📦 Suivi en Temps Réel</h4>
+                  <ul>
+                    <li><strong>Numéro de suivi :</strong> Envoyé par email dès l'expédition</li>
+                    <li><strong>Notifications :</strong> SMS à chaque étape (préparation, expédition, en cours de livraison)</li>
+                    <li><strong>Géolocalisation :</strong> Position du livreur en temps réel le jour J</li>
+                    <li><strong>Contact direct :</strong> Numéro du transporteur pour toute question</li>
+                  </ul>
+                </div>
+
+                <div class="feature-section">
+                  <h4>🎁 Emballage Premium</h4>
+                  <p>Tous nos produits sont expédiés dans un emballage soigné :</p>
+                  <ul>
+                    <li>Carton renforcé et protection bulles</li>
+                    <li>Emballage discret (pas de logo visible)</li>
+                    <li>Matériaux 100% recyclables</li>
+                    <li>Notice de déballage incluse</li>
+                  </ul>
+                </div>
+
+                <div class="feature-section">
+                  <h4>🌍 Livraison Internationale</h4>
+                  <p><strong>Union Européenne :</strong> 2 à 4 jours ouvrés (frais : 9,90€)</p>
+                  <p><strong>Suisse, UK, Norvège :</strong> 3 à 5 jours ouvrés (frais : 14,90€)</p>
+                  <p><em>💡 Livraison gratuite dès 200€ d'achat pour toute l'Europe !</em></p>
+                </div>
+
+                <div class="feature-section">
+                  <h4>❓ Que Faire en Cas de Problème ?</h4>
+                  <ul>
+                    <li><strong>Colis perdu :</strong> Renvoi immédiat d'un nouveau produit</li>
+                    <li><strong>Colis endommagé :</strong> Refusez le colis et contactez-nous (remplacement gratuit)</li>
+                    <li><strong>Retard de livraison :</strong> Bon d'achat de 20€ offert si dépassement de 48h</li>
+                    <li><strong>Absence lors de la livraison :</strong> 2 nouvelles tentatives gratuites</li>
+                  </ul>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  }
+</main>
+
+<app-footer></app-footer>

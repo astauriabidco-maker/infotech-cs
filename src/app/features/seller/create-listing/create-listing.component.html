@@ -1,0 +1,179 @@
+<app-header></app-header>
+
+<main class="create-listing-page">
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">Créer une nouvelle offre</h1>
+      <p class="page-description">Ajoutez un produit à votre catalogue de vente</p>
+    </div>
+
+    <div class="form-container">
+      <form [formGroup]="listingForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Product Selection -->
+        <div class="form-section">
+          <h2 class="section-title">1. Sélectionner le produit</h2>
+          
+          <div class="search-box">
+            <input 
+              type="text" 
+              class="form-input"
+              placeholder="Rechercher un produit..."
+              [(ngModel)]="searchQuery"
+              [ngModelOptions]="{standalone: true}"
+              (ngModelChange)="searchProducts()">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none">
+              <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="products-list">
+            @if (products().length === 0) {
+              <div class="empty-state">
+                <p>Aucun produit trouvé</p>
+              </div>
+            } @else {
+              @for (product of products(); track product.id) {
+                <div 
+                  class="product-item"
+                  [class.selected]="listingForm.get('productId')?.value === product.id"
+                  (click)="onProductSelect(product.id)">
+                  <div class="product-info">
+                    <h3 class="product-title">{{ product.brand }} {{ product.title }}</h3>
+                    <p class="product-meta">{{ product.model }} • {{ product.condition }}</p>
+                  </div>
+                  @if (listingForm.get('productId')?.value === product.id) {
+                    <svg class="check-icon" viewBox="0 0 24 24" fill="none">
+                      <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  }
+                </div>
+              }
+            }
+          </div>
+
+          @if (listingForm.get('productId')?.touched && listingForm.get('productId')?.hasError('required')) {
+            <div class="error-message">Veuillez sélectionner un produit</div>
+          }
+        </div>
+
+        <!-- Selected Product Preview -->
+        @if (getSelectedProduct(); as selectedProduct) {
+          <div class="selected-product-preview">
+            <h3>Produit sélectionné :</h3>
+            <div class="preview-card">
+              <strong>{{ selectedProduct.brand }} {{ selectedProduct.title }}</strong>
+              <span class="badge">{{ selectedProduct.condition }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- Pricing Section -->
+        <div class="form-section">
+          <h2 class="section-title">2. Prix et stock</h2>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">
+                Prix de vente (€) *
+              </label>
+              <input 
+                type="number" 
+                class="form-input"
+                formControlName="price"
+                placeholder="699.99"
+                step="0.01"
+                min="0">
+              @if (listingForm.get('price')?.touched && listingForm.get('price')?.hasError('required')) {
+                <div class="error-message">Le prix est requis</div>
+              }
+              @if (listingForm.get('price')?.touched && listingForm.get('price')?.hasError('min')) {
+                <div class="error-message">Le prix doit être positif</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                Quantité en stock *
+              </label>
+              <input 
+                type="number" 
+                class="form-input"
+                formControlName="quantity"
+                placeholder="1"
+                min="1">
+              @if (listingForm.get('quantity')?.touched && listingForm.get('quantity')?.hasError('required')) {
+                <div class="error-message">La quantité est requise</div>
+              }
+              @if (listingForm.get('quantity')?.touched && listingForm.get('quantity')?.hasError('min')) {
+                <div class="error-message">La quantité doit être au moins 1</div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Condition Note -->
+        <div class="form-section">
+          <h2 class="section-title">3. Notes sur l'état (optionnel)</h2>
+          
+          <div class="form-group">
+            <label class="form-label">
+              Précisions sur l'état du produit
+            </label>
+            <textarea 
+              class="form-textarea"
+              formControlName="conditionNote"
+              rows="4"
+              placeholder="Ex: Écran neuf, dos légèrement rayé, garantie 6 mois..."></textarea>
+            <small class="form-hint">Ces informations aideront vos clients à faire leur choix</small>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        @if (getSelectedProduct(); as selectedProduct) {
+          <div class="listing-summary">
+            <h3>Résumé de votre offre</h3>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="label">Produit :</span>
+                <span class="value">{{ selectedProduct.brand }} {{ selectedProduct.title }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="label">Prix :</span>
+                <span class="value price">{{ listingForm.get('price')?.value || 0 | number:'1.2-2' }} €</span>
+              </div>
+              <div class="summary-item">
+                <span class="label">Stock :</span>
+                <span class="value">{{ listingForm.get('quantity')?.value || 0 }} unité(s)</span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            routerLink="/seller/listings">
+            Annuler
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+            [disabled]="listingForm.invalid || isLoading()">
+            @if (isLoading()) {
+              <div class="spinner"></div>
+              Création en cours...
+            } @else {
+              Créer l'offre
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<app-footer></app-footer>

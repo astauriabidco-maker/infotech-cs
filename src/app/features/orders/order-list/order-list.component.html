@@ -1,0 +1,82 @@
+<app-header></app-header>
+
+<main class="orders-page">
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">Mes Commandes</h1>
+      @if (orders().length > 0) {
+        <p class="page-description">{{ orders().length }} commande{{ orders().length > 1 ? 's' : '' }}</p>
+      }
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Chargement de vos commandes...</p>
+      </div>
+    } @else if (orders().length === 0) {
+      <div class="empty-state">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none">
+          <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-8 2a2 2 0 1 1-4 0 2 2 0 0 1 4 0z" 
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h2>Aucune commande</h2>
+        <p>Vous n'avez pas encore passé de commande</p>
+        <a routerLink="/products" class="btn btn-primary btn-lg">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+            <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Découvrir les produits
+        </a>
+      </div>
+    } @else {
+      <div class="orders-list">
+        @for (order of orders(); track order.id) {
+          <div class="order-card">
+            <div class="order-header">
+              <div class="order-info">
+                <div class="order-number">Commande #{{ order.id }}</div>
+                <div class="order-date">{{ order.createdAt | date:'dd/MM/yyyy à HH:mm' }}</div>
+              </div>
+              <span class="badge" [ngClass]="getStatusBadgeClass(order.status)">
+                {{ getStatusLabel(order.status) }}
+              </span>
+            </div>
+
+            <div class="order-items">
+              @for (item of order.items; track item.id) {
+                <div class="order-item">
+                  <div class="item-details">
+                    <div class="item-name">{{ item.productTitle }}</div>
+                    <div class="item-quantity">Quantité: {{ item.quantity }}</div>
+                  </div>
+                  <div class="item-price">{{ item.price * item.quantity | number:'1.2-2' }} €</div>
+                </div>
+              }
+            </div>
+
+            <div class="order-footer">
+              <div class="order-total">
+                <span>Total</span>
+                <strong>{{ order.total | number:'1.2-2' }} €</strong>
+              </div>
+              <div class="order-actions">
+                <a [routerLink]="['/orders', order.id]" class="btn btn-secondary">
+                  Voir les détails
+                </a>
+                @if (order.status === 'COMPLETED') {
+                  <button class="btn btn-primary">
+                    Commander à nouveau
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</main>
+
+<app-footer></app-footer>

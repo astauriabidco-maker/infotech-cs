@@ -1,0 +1,57 @@
+<app-header></app-header>
+
+<main class="auth-page">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1 class="auth-title">Connexion</h1>
+        <p class="auth-subtitle">Bienvenue sur Infotech</p>
+      </div>
+
+      <form class="auth-form" (ngSubmit)="onSubmit()">
+        @if (error) {
+          <div class="alert alert-error">
+            {{ error }}
+          </div>
+        }
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            class="form-input"
+            placeholder="votre@email.com"
+            [(ngModel)]="credentials.email"
+            name="email"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Mot de passe</label>
+          <input
+            type="password"
+            id="password"
+            class="form-input"
+            placeholder="••••••••"
+            [(ngModel)]="credentials.password"
+            name="password"
+            required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg w-full" [disabled]="isLoading">
+          @if (isLoading) {
+            <span class="spinner"></span>
+          }
+          Se connecter
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <p>Pas encore de compte ?
+          <a routerLink="/auth/register" class="auth-link">Créer un compte</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</main>

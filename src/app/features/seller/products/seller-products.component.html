@@ -1,0 +1,278 @@
+<app-header></app-header>
+
+<main class="seller-products">
+  <div class="container">
+    <div class="page-header">
+      <h1>📦 Mes Produits</h1>
+      <button class="btn btn-primary" (click)="openAddModal()">
+        <svg viewBox="0 0 24 24" fill="none" width="20" height="20">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Ajouter un produit
+      </button>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Chargement de vos produits...</p>
+      </div>
+    } @else {
+      @if (listings().length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">📦</div>
+          <h2>Aucun produit</h2>
+          <p>Commencez par ajouter votre premier produit à vendre</p>
+          <button class="btn btn-primary" (click)="openAddModal()">Ajouter un produit</button>
+        </div>
+      } @else {
+        <div class="products-grid">
+          @for (listing of listings(); track listing.id) {
+            <div class="product-card">
+              <div class="product-image">
+                @if (listing.images.length > 0) {
+                  <img [src]="listing.images[0]" [alt]="listing.productTitle">
+                } @else {
+                  <div class="image-placeholder">📦</div>
+                }
+                <span class="product-status" [class.active]="listing.active">
+                  {{ listing.active ? 'Actif' : 'Inactif' }}
+                </span>
+              </div>
+
+              <div class="product-info">
+                <h3>{{ listing.productTitle }}</h3>
+                <p class="product-brand">{{ listing.productBrand }} - {{ listing.productTitle.split(' ')[listing.productTitle.split(' ').length - 1] }}</p>
+                
+                <div class="product-details">
+                  <div class="detail-item">
+                    <span class="label">Prix:</span>
+                    <span class="value price">{{ listing.price | number: '1.2-2' }} €</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">Stock:</span>
+                    <span class="value">{{ listing.quantity }} unité(s)</span>
+                  </div>
+                  @if (listing.conditionNote) {
+                    <div class="detail-item condition-note">
+                      <span class="label">Note:</span>
+                      <span class="value">{{ listing.conditionNote }}</span>
+                    </div>
+                  }
+                </div>
+
+                <div class="product-actions">
+                  <button class="btn btn-secondary btn-sm">
+                    <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Modifier
+                  </button>
+                  <button class="btn btn-danger btn-sm" (click)="deleteListing(listing.id)">
+                    <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                      <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</main>
+
+<!-- Modal Ajout Produit -->
+@if (showAddModal()) {
+  <div class="modal-overlay" (click)="closeAddModal()">
+    <div class="modal modal-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>🆕 Ajouter un nouveau produit</h2>
+        <button class="close-btn" (click)="closeAddModal()">×</button>
+      </div>
+
+      <form class="modal-body" (ngSubmit)="createProduct()">
+        <!-- Informations produit -->
+        <div class="form-section">
+          <h3>📋 Informations du produit</h3>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Titre du produit *</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                [(ngModel)]="newProduct.title"
+                name="title"
+                placeholder="Ex: iPhone 13 Pro 128GB"
+                required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Marque *</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                [(ngModel)]="newProduct.brand"
+                name="brand"
+                placeholder="Ex: Apple"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label>Modèle *</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                [(ngModel)]="newProduct.model"
+                name="model"
+                placeholder="Ex: iPhone 13 Pro"
+                required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Catégorie</label>
+              <select class="form-input" [(ngModel)]="newProduct.categoryId" name="categoryId">
+                <option [value]="null">-- Sélectionner une catégorie --</option>
+                @for (category of categories(); track category.id) {
+                  <option [value]="category.id">{{ category.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>État *</label>
+              <select class="form-input" [(ngModel)]="newProduct.condition" name="condition" required>
+                @for (condition of conditions; track condition) {
+                  <option [value]="condition">{{ condition }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Prix (€) *</label>
+              <input 
+                type="number" 
+                class="form-input" 
+                [(ngModel)]="newProduct.price"
+                name="price"
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                required>
+            </div>
+
+            <div class="form-group">
+              <label>Quantité *</label>
+              <input 
+                type="number" 
+                class="form-input" 
+                [(ngModel)]="newProduct.quantity"
+                name="quantity"
+                placeholder="1"
+                min="1"
+                required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea 
+              class="form-input" 
+              rows="4"
+              [(ngModel)]="newProduct.description"
+              name="description"
+              placeholder="Décrivez votre produit en détail..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Note sur l'état</label>
+            <textarea 
+              class="form-input" 
+              rows="2"
+              [(ngModel)]="newProduct.conditionNote"
+              name="conditionNote"
+              placeholder="Ex: Légères traces d'usage, écran impeccable..."></textarea>
+          </div>
+        </div>
+
+        <!-- Upload d'images -->
+        <div class="form-section">
+          <h3>📸 Images du produit *</h3>
+          <p class="section-help">Ajoutez des photos de votre produit (formats: JPG, PNG, WebP, GIF - max 10MB par image)</p>
+
+          <!-- Zone de drop -->
+          <div 
+            class="image-upload-zone"
+            (drop)="onDrop($event)"
+            (dragover)="onDragOver($event)">
+            <input 
+              type="file" 
+              id="fileInput"
+              class="file-input"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              multiple
+              (change)="onFilesSelected($event)">
+            
+            <label for="fileInput" class="upload-label">
+              <div class="upload-icon">📤</div>
+              <p class="upload-text">Cliquez pour sélectionner ou glissez-déposez vos images</p>
+              <p class="upload-hint">Vous pouvez ajouter plusieurs images</p>
+            </label>
+          </div>
+
+          <!-- Aperçu des images -->
+          @if (imagePreviews.length > 0) {
+            <div class="image-previews">
+              <h4>Aperçu ({{ imagePreviews.length }} image(s))</h4>
+              <div class="previews-grid">
+                @for (preview of imagePreviews; track $index) {
+                  <div class="preview-item">
+                    <img [src]="preview" alt="Aperçu">
+                    <button 
+                      type="button" 
+                      class="remove-image-btn"
+                      (click)="removeImage($index)">
+                      <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </form>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeAddModal()" [disabled]="isUploading()">
+          Annuler
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          (click)="createProduct()" 
+          [disabled]="isUploading()">
+          @if (isUploading()) {
+            <span class="btn-spinner"></span>
+            Création en cours...
+          } @else {
+            ✓ Créer le produit
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<app-footer></app-footer>

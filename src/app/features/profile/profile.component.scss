@@ -1,0 +1,305 @@
+.profile-page {
+  min-height: calc(100vh - 200px);
+  padding: var(--spacing-2xl) 0;
+  background: var(--gray-50);
+
+  .page-title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .loading-state {
+    text-align: center;
+    padding: var(--spacing-3xl) 0;
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto var(--spacing-md);
+    }
+
+    p {
+      color: var(--gray-600);
+    }
+  }
+
+  .profile-content {
+    display: grid;
+    gap: var(--spacing-xl);
+    max-width: 800px;
+  }
+
+  .card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+
+    .card-header {
+      padding: var(--spacing-lg);
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      h2 {
+        font-size: var(--text-xl);
+        font-weight: 600;
+        color: var(--gray-900);
+      }
+    }
+
+    .card-body {
+      padding: var(--spacing-lg);
+    }
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+  }
+
+  .info-item {
+    label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--gray-600);
+      margin-bottom: var(--spacing-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    p {
+      font-size: var(--text-md);
+      color: var(--gray-900);
+      margin: 0;
+    }
+
+    .roles-list {
+      display: flex;
+      gap: var(--spacing-xs);
+      flex-wrap: wrap;
+    }
+  }
+
+  .seller-info {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-xl);
+    border-top: 1px solid var(--gray-200);
+
+    h3 {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      color: var(--gray-900);
+      margin-bottom: var(--spacing-lg);
+    }
+  }
+
+  .edit-form {
+    .form-group {
+      margin-bottom: var(--spacing-lg);
+
+      label {
+        display: block;
+        font-size: var(--text-sm);
+        font-weight: 600;
+        color: var(--gray-700);
+        margin-bottom: var(--spacing-sm);
+      }
+    }
+
+    .form-section-title {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      color: var(--gray-900);
+      margin: var(--spacing-xl) 0 var(--spacing-lg);
+      padding-top: var(--spacing-xl);
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: var(--spacing-md);
+      justify-content: flex-end;
+      margin-top: var(--spacing-xl);
+      padding-top: var(--spacing-xl);
+      border-top: 1px solid var(--gray-200);
+    }
+  }
+
+  .admin-card {
+    background: linear-gradient(135deg, var(--primary-50) 0%, var(--accent-50) 100%);
+    border: 2px solid var(--primary-200);
+
+    .card-header h2 {
+      color: var(--primary-700);
+    }
+
+    .btn-block {
+      background: var(--primary-600);
+      color: white;
+
+      &:hover {
+        background: var(--primary-700);
+      }
+    }
+  }
+
+  .seller-card {
+    background: linear-gradient(135deg, #fff5e6 0%, #ffe6cc 100%);
+    border: 2px solid #ffcc80;
+
+    .card-header h2 {
+      color: #e65100;
+    }
+
+    .btn-block {
+      background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+      color: white;
+
+      &:hover {
+        background: linear-gradient(135deg, #f57c00 0%, #e65100 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+      }
+    }
+  }
+
+  .danger-card {
+    background: var(--error-50);
+    border: 2px solid var(--error-200);
+
+    .card-header h2 {
+      color: var(--error-700);
+    }
+
+    .danger-text {
+      color: var(--error-700);
+      margin-bottom: var(--spacing-md);
+      font-size: var(--text-sm);
+    }
+
+    .btn-danger {
+      background: var(--error-600);
+      color: white;
+
+      &:hover {
+        background: var(--error-700);
+      }
+    }
+  }
+
+  .btn-block {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+  }
+}
+
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-lg);
+}
+
+.modal {
+  background: white;
+  border-radius: var(--radius-lg);
+  max-width: 500px;
+  width: 100%;
+  box-shadow: var(--shadow-xl);
+
+  .modal-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h2 {
+      font-size: var(--text-xl);
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      font-size: 24px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--gray-100);
+        color: var(--gray-700);
+      }
+    }
+  }
+
+  .modal-body {
+    padding: var(--spacing-lg);
+
+    .form-group {
+      margin-bottom: var(--spacing-lg);
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      label {
+        display: block;
+        font-size: var(--text-sm);
+        font-weight: 600;
+        color: var(--gray-700);
+        margin-bottom: var(--spacing-sm);
+      }
+    }
+  }
+
+  .modal-footer {
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-page {
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .edit-form .form-actions {
+      flex-direction: column;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+

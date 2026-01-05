@@ -1,0 +1,393 @@
+<div class="digital-passport">
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement du passeport numérique...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <div class="error-icon">⚠️</div>
+      <h3>{{ error() }}</h3>
+      <p>Ce produit ne dispose pas encore de passeport numérique.</p>
+    </div>
+  } @else if (passport()) {
+    <div class="passport-container">
+      
+      <!-- Header du passeport -->
+      <div class="passport-header">
+        <div class="header-icon">🌍</div>
+        <h2>Passeport Numérique Produit</h2>
+        <p class="header-subtitle">Transparence et traçabilité totale</p>
+      </div>
+
+      <!-- Navigation tabs -->
+      <div class="passport-tabs">
+        <button 
+          class="tab" 
+          [class.active]="activeTab() === 'carbon'"
+          (click)="setActiveTab('carbon')">
+          <span class="tab-icon">🌱</span>
+          <span class="tab-label">Impact Carbone</span>
+        </button>
+        
+        <button 
+          class="tab" 
+          [class.active]="activeTab() === 'materials'"
+          (click)="setActiveTab('materials')">
+          <span class="tab-icon">📦</span>
+          <span class="tab-label">Matériaux</span>
+        </button>
+        
+        <button 
+          class="tab" 
+          [class.active]="activeTab() === 'durability'"
+          (click)="setActiveTab('durability')">
+          <span class="tab-icon">🔧</span>
+          <span class="tab-label">Durabilité</span>
+        </button>
+        
+        <button 
+          class="tab" 
+          [class.active]="activeTab() === 'certifications'"
+          (click)="setActiveTab('certifications')">
+          <span class="tab-icon">✓</span>
+          <span class="tab-label">Certifications</span>
+        </button>
+        
+        <button 
+          class="tab" 
+          [class.active]="activeTab() === 'recycling'"
+          (click)="setActiveTab('recycling')">
+          <span class="tab-icon">♻️</span>
+          <span class="tab-label">Recyclage</span>
+        </button>
+      </div>
+
+      <!-- Contenu des tabs -->
+      <div class="passport-content">
+        
+        <!-- Tab Impact Carbone -->
+        @if (activeTab() === 'carbon') {
+          <div class="content-section carbon-section">
+            <h3>Empreinte Carbone</h3>
+            
+            <!-- Score principal -->
+            <div class="carbon-score-card">
+              <div class="score-circle" [style.border-color]="getScoreColor(passport()!.carbonFootprint.score)">
+                <div class="score-letter" [style.color]="getScoreColor(passport()!.carbonFootprint.score)">
+                  {{ passport()!.carbonFootprint.score }}
+                </div>
+                <div class="score-label">Score Carbone</div>
+              </div>
+              
+              <div class="score-details">
+                <div class="total-co2">
+                  <span class="value">{{ passport()!.carbonFootprint.totalCO2 }}</span>
+                  <span class="unit">kg CO₂</span>
+                </div>
+                <p class="score-description">Empreinte carbone totale sur le cycle de vie</p>
+              </div>
+            </div>
+
+            <!-- Répartition -->
+            <div class="carbon-breakdown">
+              <h4>Répartition de l'empreinte</h4>
+              
+              <div class="breakdown-item">
+                <div class="item-header">
+                  <span class="item-icon">🏭</span>
+                  <span class="item-label">Fabrication</span>
+                  <span class="item-value">{{ passport()!.carbonFootprint.manufacturing }} kg CO₂</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" 
+                       [style.width.%]="(passport()!.carbonFootprint.manufacturing / passport()!.carbonFootprint.totalCO2) * 100"></div>
+                </div>
+              </div>
+
+              <div class="breakdown-item">
+                <div class="item-header">
+                  <span class="item-icon">🚚</span>
+                  <span class="item-label">Transport</span>
+                  <span class="item-value">{{ passport()!.carbonFootprint.transportation }} kg CO₂</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" 
+                       [style.width.%]="(passport()!.carbonFootprint.transportation / passport()!.carbonFootprint.totalCO2) * 100"></div>
+                </div>
+              </div>
+
+              <div class="breakdown-item">
+                <div class="item-header">
+                  <span class="item-icon">⚡</span>
+                  <span class="item-label">Utilisation (3 ans)</span>
+                  <span class="item-value">{{ passport()!.carbonFootprint.usage }} kg CO₂</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" 
+                       [style.width.%]="(passport()!.carbonFootprint.usage / passport()!.carbonFootprint.totalCO2) * 100"></div>
+                </div>
+              </div>
+
+              <div class="breakdown-item">
+                <div class="item-header">
+                  <span class="item-icon">🗑️</span>
+                  <span class="item-label">Fin de vie</span>
+                  <span class="item-value">{{ passport()!.carbonFootprint.endOfLife }} kg CO₂</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" 
+                       [style.width.%]="(passport()!.carbonFootprint.endOfLife / passport()!.carbonFootprint.totalCO2) * 100"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Équivalences -->
+            <div class="equivalences">
+              <h4>Pour mieux comprendre</h4>
+              
+              <div class="equivalence-cards">
+                <div class="equivalence-card">
+                  <div class="eq-icon">🚗</div>
+                  <div class="eq-value">{{ (passport()!.carbonFootprint.totalCO2 / 0.12).toFixed(0) }} km</div>
+                  <div class="eq-label">en voiture</div>
+                </div>
+
+                <div class="equivalence-card">
+                  <div class="eq-icon">🌳</div>
+                  <div class="eq-value">{{ (passport()!.carbonFootprint.totalCO2 / 25).toFixed(1) }}</div>
+                  <div class="eq-label">arbres / an pour compenser</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Tab Matériaux -->
+        @if (activeTab() === 'materials') {
+          <div class="content-section materials-section">
+            <h3>Composition & Matériaux</h3>
+            
+            <div class="materials-list">
+              @for (material of passport()!.materials; track material.name) {
+                <div class="material-card">
+                  <div class="material-header">
+                    <span class="material-icon">{{ getMaterialIcon(material) }}</span>
+                    <div class="material-info">
+                      <h4>{{ material.name }}</h4>
+                      <p class="material-origin">Origine : {{ material.origin }}</p>
+                    </div>
+                    <span class="material-percentage">{{ material.percentage }}%</span>
+                  </div>
+                  
+                  <div class="material-badges">
+                    @if (material.renewable) {
+                      <span class="badge badge-success">🌱 Renouvelable</span>
+                    }
+                    @if (material.recycled) {
+                      <span class="badge badge-info">♻️ Recyclé</span>
+                    }
+                    @if (material.recyclable) {
+                      <span class="badge badge-primary">🔄 Recyclable</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Traçabilité -->
+            <div class="traceability">
+              <h4>Traçabilité</h4>
+              
+              <div class="trace-info">
+                <div class="trace-item">
+                  <span class="trace-label">Pays d'origine</span>
+                  <span class="trace-value">{{ passport()!.traceability.originCountry }}</span>
+                </div>
+                <div class="trace-item">
+                  <span class="trace-label">Fabricant</span>
+                  <span class="trace-value">{{ passport()!.traceability.manufacturer }}</span>
+                </div>
+                @if (passport()!.traceability.factory) {
+                  <div class="trace-item">
+                    <span class="trace-label">Usine</span>
+                    <span class="trace-value">{{ passport()!.traceability.factory }}</span>
+                  </div>
+                }
+              </div>
+
+              <!-- Transparence de la chaîne -->
+              <div class="transparency-meter">
+                <label>Transparence de la chaîne d'approvisionnement</label>
+                <div class="meter">
+                  <div class="meter-fill" 
+                       [style.width.%]="passport()!.traceability.transparencyScore"></div>
+                </div>
+                <span class="meter-value">{{ passport()!.traceability.transparencyScore }}%</span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Tab Durabilité -->
+        @if (activeTab() === 'durability') {
+          <div class="content-section durability-section">
+            <h3>Durabilité & Réparabilité</h3>
+            
+            <!-- Indice de réparabilité -->
+            <div class="repairability-card">
+              <div class="repair-score" [style.border-color]="getScoreColor(passport()!.durability.repairabilityIndex)">
+                <div class="score-letter" [style.color]="getScoreColor(passport()!.durability.repairabilityIndex)">
+                  {{ passport()!.durability.repairabilityIndex }}
+                </div>
+                <div class="score-number">{{ passport()!.durability.repairabilityScore }}/10</div>
+                <div class="score-label">Indice de Réparabilité</div>
+              </div>
+              
+              <div class="repair-details">
+                <div class="detail-item">
+                  <span class="icon">⏱️</span>
+                  <div>
+                    <strong>Durée de vie estimée</strong>
+                    <p>{{ passport()!.durability.expectedLifespanYears || 'Non spécifié' }} @if(passport()!.durability.expectedLifespanYears) { ans }</p>
+                  </div>
+                </div>
+
+                <div class="detail-item">
+                  <span class="icon">🔧</span>
+                  <div>
+                    <strong>Pièces détachées</strong>
+                    <p>
+                      @if (passport()!.durability.sparePartsAvailable) {
+                        Disponibles
+                      } @else {
+                        Non disponibles
+                      }
+                    </p>
+                  </div>
+                </div>
+
+                <div class="detail-item">
+                  <span class="icon">📜</span>
+                  <div>
+                    <strong>Garantie</strong>
+                    <p>{{ passport()!.durability.warrantyYears || 'Non spécifié' }} @if(passport()!.durability.warrantyYears) { an(s) }</p>
+                  </div>
+                </div>
+
+                @if (passport()!.durability.softwareUpdates) {
+                  <div class="detail-item">
+                    <span class="icon">📱</span>
+                    <div>
+                      <strong>Mises à jour logicielles</strong>
+                      <p>Disponibles</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Tab Certifications -->
+        @if (activeTab() === 'certifications') {
+          <div class="content-section certifications-section">
+            <h3>Certifications & Labels</h3>
+            
+            @if (passport()!.certifications.length > 0) {
+              <div class="certifications-grid">
+                @for (cert of passport()!.certifications; track cert.name) {
+                  <div class="certification-card">
+                    <div class="cert-logo">
+                      @if (cert.logoUrl) {
+                        <img [src]="cert.logoUrl" [alt]="cert.name">
+                      } @else {
+                        <div class="cert-placeholder">✓</div>
+                      }
+                    </div>
+                    
+                    <div class="cert-info">
+                      <h4>{{ cert.name }}</h4>
+                      <p class="cert-issuer">{{ cert.issuer }}</p>
+                      <p class="cert-valid">Valide jusqu'au {{ formatDate(cert.validUntil) }}</p>
+                      
+                      @if (cert.verificationUrl) {
+                        <a [href]="cert.verificationUrl" target="_blank" class="cert-verify">
+                          Vérifier la certification →
+                        </a>
+                      }
+                    </div>
+                    
+                    <div class="cert-badge" [attr.data-type]="cert.type">
+                      {{ cert.type }}
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-state">
+                <p>Aucune certification disponible pour ce produit.</p>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Tab Recyclage -->
+        @if (activeTab() === 'recycling') {
+          <div class="content-section recycling-section">
+            <h3>Recyclage & Fin de Vie</h3>
+            
+            <div class="recycling-summary">
+              <div class="summary-stat">
+                <span class="stat-value">{{ passport()!.recyclingInfo.recyclablePercentage }}%</span>
+                <span class="stat-label">du produit recyclable</span>
+              </div>
+              
+              @if (passport()!.recyclingInfo.takeBackProgram) {
+                <div class="takeback-badge">
+                  ♻️ Programme de reprise disponible
+                </div>
+              }
+            </div>
+
+            @if (passport()!.recyclingInfo.instructions) {
+              <div class="recycling-instructions">
+                <h4>Instructions de recyclage</h4>
+                <p>{{ passport()!.recyclingInfo.instructions }}</p>
+              </div>
+            }
+
+            @if (passport()!.recyclingInfo.collectionPoints && passport()!.recyclingInfo.collectionPoints!.length > 0) {
+              <div class="collection-points">
+                <h4>Points de collecte à proximité</h4>
+                
+                @for (point of passport()!.recyclingInfo.collectionPoints; track point.name) {
+                  <div class="collection-point">
+                    <div class="point-header">
+                      <h5>{{ point.name }}</h5>
+                      <span class="point-distance">{{ point.distance }}</span>
+                    </div>
+                    <p class="point-address">{{ point.address }}</p>
+                    <div class="point-materials">
+                      @for (material of point.acceptedMaterials; track material) {
+                        <span class="material-tag">{{ material }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Footer -->
+      <div class="passport-footer">
+        <p class="footer-text">
+          <span class="icon">ℹ️</span>
+          Dernière mise à jour : {{ formatDate(passport()!.updatedAt) }}
+        </p>
+      </div>
+    </div>
+  }
+</div>
