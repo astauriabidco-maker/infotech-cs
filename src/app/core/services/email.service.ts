@@ -497,3 +497,4 @@ export class EmailService {
     return price.toFixed(2);
   }
 }
+ 
