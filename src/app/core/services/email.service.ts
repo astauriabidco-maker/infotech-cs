@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Order } from '../models/order.model';
+import { environment } from '../../../environments/environment';
 import { User } from '../models/user.model';
 
 export interface EmailData {
@@ -497,4 +498,3 @@ export class EmailService {
     return price.toFixed(2);
   }
 }
- 

@@ -1,0 +1,762 @@
+.digital-passport {
+  min-height: 400px;
+  background: var(--bg-secondary);
+}
+
+// Loading & Error States
+.loading-state, .error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  min-height: 400px;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--bg-tertiary);
+    border-top-color: var(--accent-purple);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+.error-state {
+  .error-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    color: #ef4444;
+    margin: 0 0 0.5rem;
+  }
+
+  p {
+    color: var(--text-muted);
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// Passport Container
+.passport-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+// Header
+.passport-header {
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-purple-dark) 100%);
+  color: var(--bg-primary);
+  border-radius: 1rem 1rem 0 0;
+
+  .header-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+  }
+
+  .header-subtitle {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.95rem;
+  }
+}
+
+// Tabs
+.passport-tabs {
+  display: flex;
+  background: var(--bg-tertiary);
+  border-bottom: 2px solid var(--border-color);
+  overflow-x: auto;
+
+  .tab {
+    flex: 1;
+    min-width: 120px;
+    padding: 1rem 0.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+
+    .tab-icon {
+      font-size: 1.5rem;
+    }
+
+    .tab-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    &:hover:not(.active) {
+      background: var(--bg-elevated);
+    }
+
+    &.active {
+      border-bottom-color: var(--accent-purple);
+      background: var(--bg-secondary);
+
+      .tab-label {
+        color: var(--accent-purple);
+      }
+    }
+  }
+}
+
+// Content
+.passport-content {
+  padding: 2rem;
+  min-height: 500px;
+}
+
+.content-section {
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 1.5rem;
+  }
+
+  h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 1.5rem 0 1rem;
+  }
+}
+
+// Carbon Section
+.carbon-score-card {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+  background: var(--bg-tertiary);
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--border-color);
+
+  .score-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 8px solid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    flex-shrink: 0;
+
+    .score-letter {
+      font-size: 3rem;
+      font-weight: 900;
+    }
+
+    .score-label {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+  }
+
+  .score-details {
+    .total-co2 {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+
+      .value {
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      .unit {
+        font-size: 1.125rem;
+        color: var(--text-secondary);
+      }
+    }
+
+    .score-description {
+      margin: 0.5rem 0 0;
+      color: var(--text-secondary);
+    }
+  }
+}
+
+.carbon-breakdown {
+  background: var(--bg-tertiary);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--border-color);
+
+  .breakdown-item {
+    margin-bottom: 1.25rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .item-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+
+      .item-icon {
+        font-size: 1.25rem;
+      }
+
+      .item-label {
+        flex: 1;
+        font-weight: 500;
+        color: var(--text-primary);
+      }
+
+      .item-value {
+        font-weight: 600;
+        color: var(--accent-purple);
+      }
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--bg-elevated);
+      border-radius: 4px;
+      overflow: hidden;
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-purple) 0%, var(--accent-purple-dark) 100%);
+        transition: width 0.3s ease;
+      }
+    }
+  }
+}
+
+.equivalences {
+  .equivalence-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+
+    .equivalence-card {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      text-align: center;
+
+      .eq-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .eq-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--accent-purple);
+        margin-bottom: 0.5rem;
+      }
+
+      .eq-label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+      }
+    }
+  }
+}
+
+// Materials Section
+.materials-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  .material-card {
+    background: var(--bg-tertiary);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    border: 1px solid var(--border-color);
+
+    .material-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+
+      .material-icon {
+        font-size: 2rem;
+      }
+
+      .material-info {
+        flex: 1;
+
+        h4 {
+          margin: 0;
+          font-size: 1.125rem;
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .material-origin {
+          margin: 0.25rem 0 0;
+          font-size: 0.875rem;
+          color: var(--text-secondary);
+        }
+      }
+
+      .material-percentage {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--accent-purple);
+      }
+    }
+
+    .material-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+
+      .badge {
+        padding: 0.375rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+
+        &.badge-success {
+          background: rgba(var(--accent-green-rgb), 0.2);
+          color: var(--accent-green);
+        }
+
+        &.badge-info {
+          background: rgba(59, 130, 246, 0.2);
+          color: #3b82f6;
+        }
+
+        &.badge-primary {
+          background: rgba(var(--accent-purple-rgb), 0.2);
+          color: var(--accent-purple);
+        }
+      }
+    }
+  }
+}
+
+.traceability {
+  background: var(--bg-tertiary);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+
+  .trace-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    .trace-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .trace-label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+      }
+
+      .trace-value {
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  .transparency-meter {
+    label {
+      display: block;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .meter {
+      height: 12px;
+      background: var(--bg-elevated);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+
+      .meter-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-purple) 0%, var(--accent-purple-dark) 100%);
+        transition: width 0.3s ease;
+      }
+    }
+
+    .meter-value {
+      font-weight: 600;
+      color: var(--accent-purple);
+    }
+  }
+}
+
+// Durability Section
+.repairability-card {
+  display: flex;
+  gap: 2rem;
+  background: var(--bg-tertiary);
+  padding: 2rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+
+  .repair-score {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 8px solid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    flex-shrink: 0;
+
+    .score-letter {
+      font-size: 2.5rem;
+      font-weight: 900;
+    }
+
+    .score-number {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+
+    .score-label {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+  }
+
+  .repair-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    .detail-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+
+      .icon {
+        font-size: 1.5rem;
+      }
+
+      strong {
+        display: block;
+        font-size: 1rem;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+      }
+    }
+  }
+}
+
+// Certifications Section
+.certifications-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+
+  .certification-card {
+    background: var(--bg-tertiary);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    position: relative;
+    border: 1px solid var(--border-color);
+
+    .cert-logo {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-secondary);
+      border-radius: 0.5rem;
+
+      img {
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+      .cert-placeholder {
+        font-size: 2.5rem;
+        color: var(--accent-purple);
+      }
+    }
+
+    .cert-info {
+      text-align: center;
+
+      h4 {
+        margin: 0 0 0.5rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .cert-issuer {
+        margin: 0 0 0.25rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+      }
+
+      .cert-valid {
+        margin: 0 0 1rem;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+      }
+
+      .cert-verify {
+        display: inline-block;
+        color: var(--accent-purple);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .cert-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.25rem 0.75rem;
+      background: var(--accent-purple);
+      color: var(--bg-primary);
+      font-size: 0.7rem;
+      font-weight: 600;
+      border-radius: 1rem;
+      text-transform: uppercase;
+    }
+  }
+}
+
+// Recycling Section
+.recycling-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-tertiary);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+
+  .summary-stat {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent-purple);
+    }
+
+    .stat-label {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+  }
+
+  .takeback-badge {
+    padding: 0.75rem 1.25rem;
+    background: rgba(var(--accent-green-rgb), 0.2);
+    color: var(--accent-green);
+    font-weight: 600;
+    border-radius: 2rem;
+  }
+}
+
+.recycling-instructions, .takeback-info {
+  background: var(--bg-tertiary);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+
+  p {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+}
+
+.collection-points {
+  .collection-point {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .point-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+
+      h5 {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .point-distance {
+        padding: 0.25rem 0.75rem;
+        background: var(--accent-purple);
+        color: var(--bg-primary);
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 1rem;
+      }
+    }
+
+    .point-address {
+      margin: 0 0 1rem;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .point-materials {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+
+      .material-tag {
+        padding: 0.375rem 0.75rem;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+      }
+    }
+  }
+}
+
+// Footer
+.passport-footer {
+  padding: 1.5rem 2rem;
+  background: var(--bg-tertiary);
+  border-radius: 0 0 1rem 1rem;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+
+  .footer-text {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    .icon {
+      font-size: 1.125rem;
+    }
+  }
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .passport-tabs {
+    .tab {
+      min-width: 80px;
+      padding: 0.75rem 0.375rem;
+
+      .tab-icon {
+        font-size: 1.25rem;
+      }
+
+      .tab-label {
+        font-size: 0.7rem;
+      }
+    }
+  }
+
+  .passport-content {
+    padding: 1rem;
+  }
+
+  .carbon-score-card,
+  .repairability-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .recycling-summary {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .certifications-grid {
+    grid-template-columns: 1fr;
+  }
+}
