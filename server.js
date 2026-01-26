@@ -6,7 +6,7 @@ const app = express();
 app.use(express.static(path.join(__dirname, 'dist/infotech/browser')));
 
 // Toutes les routes redirigent vers index.html (SPA)
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/infotech/browser/index.html'));
 });
 
