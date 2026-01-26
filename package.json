@@ -5,6 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "ng build --configuration production",
+    "start:prod": "node server.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -31,6 +33,7 @@
     "@angular/platform-browser-dynamic": "^20.3.15",
     "@angular/router": "^20.3.15",
     "@stripe/stripe-js": "^8.6.1",
+    "express": "^5.2.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

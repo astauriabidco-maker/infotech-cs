@@ -2,7 +2,9 @@ import { SelectedInsurance } from './cart.model';
 
 export interface Order {
   id: number;
+  orderNumber?: string; // Numéro de commande formaté généré par le backend (INF-029458-0010)
   buyerId: number;
+  orderNumberForUser?: number; // Numéro séquentiel de commande pour cet utilisateur (1, 2, 3...) - DEPRECATED
   createdAt: string;
   subtotal: number;
   insuranceTotal: number;
@@ -10,6 +12,9 @@ export interface Order {
   total: number;
   status: OrderStatus;
   items: OrderItem[];
+  deliveryMethod?: 'home' | 'pickup'; // Méthode de livraison
+  shippingCost?: number; // Frais de livraison
+  shippingAddress?: string; // JSON string de l'adresse
 }
 
 export interface OrderItem {
@@ -32,6 +37,8 @@ export interface CreateOrderRequest {
   items: OrderItemRequest[];
   paymentIntentId?: string;
   shippingAddress?: ShippingAddress;
+  deliveryMethod?: 'home' | 'pickup'; // Méthode de livraison
+  shippingCost?: number; // Frais de livraison calculés
 }
 
 export interface ShippingAddress {

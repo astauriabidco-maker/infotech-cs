@@ -8,30 +8,40 @@ import { HeaderComponent } from '../../../shared/header/header.component';
 import { FooterComponent } from '../../../shared/footer/footer.component';
 
 @Component({
-  selector: 'app-seller-orders',
+  selector: 'app-orders-management',
   standalone: true,
   imports: [CommonModule, RouterLink, HeaderComponent, FooterComponent, FormsModule],
-  templateUrl: './seller-orders.component.html',
-  styleUrl: './seller-orders.component.scss'
+  templateUrl: './orders-management.component.html',
+  styleUrl: './orders-management.component.scss'
 })
-export class SellerOrdersComponent implements OnInit {
+export class OrdersManagementComponent implements OnInit {
   private orderService = inject(OrderService);
 
   orders = signal<Order[]>([]);
   isLoading = signal(true);
   searchQuery = signal('');
-  updatingOrderId = signal<number | null>(null);
+  selectedStatus = signal<string>('all');
 
-  // Filtrer les commandes basé sur la recherche
+  // Filtrer les commandes basé sur la recherche et le statut
   filteredOrders = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
-    if (!query) return this.orders();
+    const status = this.selectedStatus();
+    let filtered = this.orders();
 
-    return this.orders().filter(order => {
-      // Rechercher par numéro de commande
-      const orderNumber = order.orderNumber || `INF-${order.id.toString().padStart(4, '0')}`;
-      return orderNumber.toLowerCase().includes(query);
-    });
+    // Filtrer par statut
+    if (status !== 'all') {
+      filtered = filtered.filter(order => order.status === status);
+    }
+
+    // Filtrer par recherche
+    if (query) {
+      filtered = filtered.filter(order => {
+        const orderNumber = order.orderNumber || `INF-${order.id.toString().padStart(4, '0')}`;
+        return orderNumber.toLowerCase().includes(query);
+      });
+    }
+
+    return filtered;
   });
 
   ngOnInit(): void {
@@ -40,8 +50,8 @@ export class SellerOrdersComponent implements OnInit {
 
   loadOrders(): void {
     this.isLoading.set(true);
-    // Utilise l'endpoint seller qui filtre les commandes contenant les produits du vendeur
-    this.orderService.getSellerOrders().subscribe({
+    // Utilise l'endpoint admin pour récupérer TOUTES les commandes de la plateforme
+    this.orderService.getAdminOrders().subscribe({
       next: (data) => {
         this.orders.set(data);
         this.isLoading.set(false);
@@ -78,12 +88,8 @@ export class SellerOrdersComponent implements OnInit {
     return this.filteredOrders().reduce((sum, order) => sum + order.total, 0);
   }
 
-  getPendingOrdersCount(): number {
-    return this.filteredOrders().filter(o => o.status === 'CREATED' || o.status === 'PAID').length;
-  }
-
-  getShippedOrdersCount(): number {
-    return this.filteredOrders().filter(o => o.status === 'SHIPPED' || o.status === 'COMPLETED').length;
+  getOrdersByStatus(status: string): number {
+    return this.filteredOrders().filter(o => o.status === status).length;
   }
 
   getOrderNumber(order: Order): string {
@@ -94,26 +100,7 @@ export class SellerOrdersComponent implements OnInit {
     this.searchQuery.set('');
   }
 
-  markAsShipped(order: Order): void {
-    if (!confirm(`Confirmer l'expédition de la commande ${this.getOrderNumber(order)} ?\n\nLe client recevra un email de notification.`)) {
-      return;
-    }
-
-    this.updatingOrderId.set(order.id);
-    this.orderService.updateOrderStatus(order.id, 'SHIPPED').subscribe({
-      next: (updatedOrder) => {
-        // Mettre à jour la commande dans la liste
-        this.orders.update(orders => 
-          orders.map(o => o.id === updatedOrder.id ? updatedOrder : o)
-        );
-        this.updatingOrderId.set(null);
-        alert('Commande marquée comme expédiée !\nUn email a été envoyé au client.');
-      },
-      error: (err) => {
-        this.updatingOrderId.set(null);
-        alert('Erreur lors de la mise à jour du statut.');
-        console.error('Erreur update status:', err);
-      }
-    });
+  changeStatusFilter(status: string): void {
+    this.selectedStatus.set(status);
   }
 }

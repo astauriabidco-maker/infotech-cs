@@ -1,0 +1,229 @@
+<app-header></app-header>
+
+<main class="orders-management-page">
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Gestion des Commandes</h1>
+        <p class="page-description">Administrez toutes les commandes de la plateforme</p>
+      </div>
+    </div>
+
+    <!-- Barre de recherche et filtres -->
+    <div class="search-section">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none">
+          <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+          <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Rechercher par numéro de commande (ex: INF-123456-0001)"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)">
+        @if (searchQuery()) {
+          <button class="clear-search" (click)="clearSearch()">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        }
+      </div>
+
+      <!-- Filtres de statut -->
+      <div class="status-filters">
+        <button 
+          class="filter-btn"
+          [class.active]="selectedStatus() === 'all'"
+          (click)="changeStatusFilter('all')">
+          Toutes
+        </button>
+        <button 
+          class="filter-btn"
+          [class.active]="selectedStatus() === 'CREATED'"
+          (click)="changeStatusFilter('CREATED')">
+          Créées
+        </button>
+        <button 
+          class="filter-btn"
+          [class.active]="selectedStatus() === 'PAID'"
+          (click)="changeStatusFilter('PAID')">
+          Payées
+        </button>
+        <button 
+          class="filter-btn"
+          [class.active]="selectedStatus() === 'SHIPPED'"
+          (click)="changeStatusFilter('SHIPPED')">
+          Expédiées
+        </button>
+        <button 
+          class="filter-btn"
+          [class.active]="selectedStatus() === 'COMPLETED'"
+          (click)="changeStatusFilter('COMPLETED')">
+          Terminées
+        </button>
+        <button 
+          class="filter-btn"
+          [class.active]="selectedStatus() === 'CANCELLED'"
+          (click)="changeStatusFilter('CANCELLED')">
+          Annulées
+        </button>
+      </div>
+
+      @if ((searchQuery() || selectedStatus() !== 'all') && filteredOrders().length !== orders().length) {
+        <div class="search-results-info">
+          {{ filteredOrders().length }} résultat(s) sur {{ orders().length }} commande(s)
+        </div>
+      }
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon revenue">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ getTotalRevenue() | number:'1.2-2' }} €</div>
+          <div class="stat-label">Chiffre d'affaires total</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon orders">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/>
+            <rect x="8" y="2" width="8" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ filteredOrders().length }}</div>
+          <div class="stat-label">Commandes affichées</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon pending">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ getOrdersByStatus('PAID') }}</div>
+          <div class="stat-label">À traiter</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon completed">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M22 4 12 14.01l-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ getOrdersByStatus('COMPLETED') }}</div>
+          <div class="stat-label">Complétées</div>
+        </div>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Chargement des commandes...</p>
+      </div>
+    } @else if (filteredOrders().length === 0) {
+      <div class="empty-state">
+        @if (searchQuery() || selectedStatus() !== 'all') {
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+            <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <h3>Aucun résultat trouvé</h3>
+          <p>Aucune commande ne correspond à vos critères de recherche</p>
+          <button class="btn-clear" (click)="clearSearch(); changeStatusFilter('all')">Réinitialiser les filtres</button>
+        } @else {
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/>
+            <rect x="8" y="2" width="8" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <h3>Aucune commande</h3>
+          <p>Aucune commande n'a encore été passée sur la plateforme</p>
+        }
+      </div>
+    } @else {
+      <div class="orders-table-container">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Numéro</th>
+              <th>Date</th>
+              <th>Client</th>
+              <th>Articles</th>
+              <th>Livraison</th>
+              <th>Montant</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of filteredOrders(); track order.id) {
+              <tr class="order-row">
+                <td class="order-number-cell">
+                  <span class="order-number">{{ getOrderNumber(order) }}</span>
+                </td>
+                <td class="date-cell">
+                  {{ order.createdAt | date:'dd/MM/yyyy' }}<br>
+                  <small>{{ order.createdAt | date:'HH:mm' }}</small>
+                </td>
+                <td class="customer-cell">
+                  <div class="customer-info">
+                    <span class="customer-id">ID: {{ order.buyerId }}</span>
+                  </div>
+                </td>
+                <td class="items-cell">
+                  <span class="items-count">{{ order.items.length }} article(s)</span>
+                </td>
+                <td class="delivery-cell">
+                  @if (order.deliveryMethod === 'home') {
+                    <span class="delivery-badge home">🚚 Domicile</span>
+                  } @else if (order.deliveryMethod === 'pickup') {
+                    <span class="delivery-badge pickup">📦 Retrait</span>
+                  } @else {
+                    <span class="delivery-badge">-</span>
+                  }
+                </td>
+                <td class="amount-cell">
+                  <strong>{{ order.total | number:'1.2-2' }} €</strong>
+                  @if (order.shippingCost && order.shippingCost > 0) {
+                    <br><small class="shipping-cost">+{{ order.shippingCost | number:'1.2-2' }}€ livraison</small>
+                  }
+                </td>
+                <td class="status-cell">
+                  <span class="badge" [ngClass]="getStatusBadgeClass(order.status)">
+                    {{ getStatusText(order.status) }}
+                  </span>
+                </td>
+                <td class="actions-cell">
+                  <a [routerLink]="['/orders', order.id]" class="btn-icon" title="Voir détails">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</main>
+
+<app-footer></app-footer>

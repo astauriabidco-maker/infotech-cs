@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, signal, computed, inject, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -17,7 +17,7 @@ import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, HeaderComponent, FooterComponent],
+  imports: [CommonModule, ReactiveFormsModule, HeaderComponent, FooterComponent],
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.scss']
 })
@@ -44,6 +44,11 @@ export class CheckoutComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedAddressId = signal<number | null>(null);
   showNewAddressForm = signal(false);
   
+  // Livraison
+  deliveryMethod = signal<'home' | 'pickup'>('home');
+  FREE_SHIPPING_THRESHOLD = 199; // Livraison gratuite à partir de 199€
+  HOME_DELIVERY_COST = 9.90; // Coût livraison à domicile
+  
   // Modes de paiement
   paymentMethod = signal<'card' | 'paypal' | 'bank-transfer'>('card');
   stripeReady = signal(false);
@@ -54,6 +59,21 @@ export class CheckoutComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedAddress = computed(() => {
     const id = this.selectedAddressId();
     return this.savedAddresses().find(addr => addr.id === id) || null;
+  });
+  
+  // Calcul des frais de livraison
+  shippingCost = computed(() => {
+    const method = this.deliveryMethod();
+    const subtotal = this.cartSummary().subtotal;
+    
+    if (method === 'pickup') return 0; // Retrait gratuit
+    if (subtotal >= this.FREE_SHIPPING_THRESHOLD) return 0; // Gratuit si > 199€
+    return this.HOME_DELIVERY_COST; // Sinon 9.90€
+  });
+  
+  // Total avec frais de livraison
+  finalTotal = computed(() => {
+    return this.cartSummary().total + this.shippingCost();
   });
 
   shippingForm: FormGroup;
@@ -189,6 +209,10 @@ export class CheckoutComponent implements OnInit, AfterViewInit, OnDestroy {
     this.paymentMethod.set(method);
   }
 
+  selectDeliveryMethod(method: 'home' | 'pickup') {
+    this.deliveryMethod.set(method);
+  }
+
   async initializeStripe() {
     try {
       await this.stripeService.initializeElements();
@@ -241,7 +265,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit, OnDestroy {
 
     try {
       // 1. Créer le PaymentIntent côté backend
-      const amount = this.cartSummary().total * 100; // Convertir en centimes
+      const amount = this.finalTotal() * 100; // Convertir en centimes (sous-total + frais de livraison)
       const token = this.authService.getToken();
       
       if (!token) {
@@ -285,6 +309,8 @@ export class CheckoutComponent implements OnInit, AfterViewInit, OnDestroy {
           quantity: item.quantity
         })),
         paymentIntentId: paymentIntentId,
+        deliveryMethod: this.deliveryMethod(),
+        shippingCost: this.shippingCost(),
         shippingAddress: selectedAddr ? {
           street: selectedAddr.street,
           city: selectedAddr.city,

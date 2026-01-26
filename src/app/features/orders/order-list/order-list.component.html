@@ -36,7 +36,7 @@
           <div class="order-card">
             <div class="order-header">
               <div class="order-info">
-                <div class="order-number">Commande #{{ order.id }}</div>
+                <div class="order-number">{{ getOrderNumber(order) }}</div>
                 <div class="order-date">{{ order.createdAt | date:'dd/MM/yyyy à HH:mm' }}</div>
               </div>
               <span class="badge" [ngClass]="getStatusBadgeClass(order.status)">

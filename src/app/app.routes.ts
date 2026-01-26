@@ -79,6 +79,12 @@ export const routes: Routes = [
     canActivate: [roleGuard],
     data: { roles: ['ROLE_ADMIN'] }
   },
+  {
+    path: 'admin/orders',
+    loadComponent: () => import('./features/admin/orders-management/orders-management.component').then(m => m.OrdersManagementComponent),
+    canActivate: [roleGuard],
+    data: { roles: ['ROLE_ADMIN'] }
+  },
 
   // Routes SELLER - Connexion requise (rôle sera vérifié dans le composant)
   {

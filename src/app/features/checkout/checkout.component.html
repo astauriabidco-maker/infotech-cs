@@ -155,6 +155,62 @@
             </form>
           }
 
+          <!-- Mode de livraison -->
+          <div class="delivery-method-section">
+            <h3 class="section-title">🚚 Mode de livraison</h3>
+            <div class="delivery-methods">
+              <div 
+                class="delivery-option"
+                [class.selected]="deliveryMethod() === 'home'"
+                (click)="selectDeliveryMethod('home')">
+                <div class="delivery-info">
+                  <div class="delivery-icon">🏠</div>
+                  <div class="delivery-details">
+                    <h4>Livraison à domicile</h4>
+                    <p>Livraison sous 3-5 jours ouvrés</p>
+                  </div>
+                </div>
+                <div class="delivery-price">
+                  @if (cartSummary().subtotal >= FREE_SHIPPING_THRESHOLD) {
+                    <span class="free-badge">GRATUIT</span>
+                    <small class="original-price">9,90 €</small>
+                  } @else {
+                    <span class="price">9,90 €</span>
+                  }
+                </div>
+                @if (deliveryMethod() === 'home') {
+                  <div class="selected-check">✓</div>
+                }
+              </div>
+
+              <div 
+                class="delivery-option"
+                [class.selected]="deliveryMethod() === 'pickup'"
+                (click)="selectDeliveryMethod('pickup')">
+                <div class="delivery-info">
+                  <div class="delivery-icon">📦</div>
+                  <div class="delivery-details">
+                    <h4>Retrait en magasin</h4>
+                    <p>Disponible sous 24h</p>
+                  </div>
+                </div>
+                <div class="delivery-price">
+                  <span class="free-badge">GRATUIT</span>
+                </div>
+                @if (deliveryMethod() === 'pickup') {
+                  <div class="selected-check">✓</div>
+                }
+              </div>
+            </div>
+
+            @if (deliveryMethod() === 'home' && cartSummary().subtotal < FREE_SHIPPING_THRESHOLD) {
+              <div class="free-shipping-info">
+                <span class="info-icon">ℹ️</span>
+                <span>Plus que {{ (FREE_SHIPPING_THRESHOLD - cartSummary().subtotal).toFixed(2) }} € pour la livraison gratuite !</span>
+              </div>
+            }
+          </div>
+
           <div class="step-actions">
             <button type="button" class="btn-next" (click)="goToStep(2)">
               Continuer vers le paiement →
@@ -253,7 +309,7 @@
                 <span class="spinner"></span>
                 Traitement...
               } @else {
-                Confirmer le paiement ({{ cartSummary().total }}€)
+                Confirmer le paiement ({{ finalTotal().toFixed(2) }}€)
               }
             </button>
           </div>
@@ -324,18 +380,35 @@
 
         <div class="summary-row">
           <span>Livraison</span>
-          <span class="free-shipping">Gratuite</span>
+          @if (shippingCost() === 0 && deliveryMethod() === 'pickup') {
+            <span class="free-shipping">Retrait gratuit</span>
+          } @else if (shippingCost() === 0 && deliveryMethod() === 'home') {
+            <span class="free-shipping">Gratuite</span>
+          } @else {
+            <span>{{ shippingCost().toFixed(2) }}€</span>
+          }
         </div>
 
         <div class="summary-divider"></div>
 
         <div class="summary-total">
           <span>Total</span>
-          <span class="total-amount">{{ cartSummary().total }}€</span>
+          <span class="total-amount">{{ finalTotal().toFixed(2) }}€</span>
         </div>
 
+        <!-- Mode de livraison sélectionné -->
+        @if (currentStep() >= 1) {
+          <div class="selected-delivery-info">
+            @if (deliveryMethod() === 'home') {
+              <p class="delivery-mode">🚚 Livraison à domicile</p>
+            } @else {
+              <p class="delivery-mode">📦 Retrait en magasin</p>
+            }
+          </div>
+        }
+
         <!-- Adresse de livraison sélectionnée -->
-        @if (currentStep() >= 2 && selectedAddress()) {
+        @if (currentStep() >= 2 && selectedAddress() && deliveryMethod() === 'home') {
           <div class="selected-shipping-address">
             <h4>📍 Livraison à :</h4>
             <p class="address-line">{{ selectedAddress()!.firstName }} {{ selectedAddress()!.lastName }}</p>

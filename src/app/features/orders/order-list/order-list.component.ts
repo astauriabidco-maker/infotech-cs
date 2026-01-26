@@ -60,4 +60,8 @@ export class OrderListComponent implements OnInit {
     };
     return labels[status] || status;
   }
+
+  getOrderNumber(order: Order): string {
+    return order.orderNumber || `INF-${order.id.toString().padStart(4, '0')}`;
+  }
 }

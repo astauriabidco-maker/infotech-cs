@@ -9,6 +9,34 @@
       </div>
     </div>
 
+    <!-- Barre de recherche -->
+    <div class="search-section">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none">
+          <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+          <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Rechercher par numéro de commande (ex: INF-123456-0001)"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)">
+        @if (searchQuery()) {
+          <button class="clear-search" (click)="clearSearch()">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        }
+      </div>
+      @if (searchQuery() && filteredOrders().length !== orders().length) {
+        <div class="search-results-info">
+          {{ filteredOrders().length }} résultat(s) trouvé(s) pour "{{ searchQuery() }}"
+        </div>
+      }
+    </div>
+
     <!-- Stats Cards -->
     <div class="stats-grid">
       <div class="stat-card">
@@ -69,22 +97,32 @@
         <div class="spinner"></div>
         <p>Chargement des commandes...</p>
       </div>
-    } @else if (orders().length === 0) {
+    } @else if (filteredOrders().length === 0) {
       <div class="empty-state">
-        <svg class="empty-icon" viewBox="0 0 24 24" fill="none">
-          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/>
-          <rect x="8" y="2" width="8" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
-        </svg>
-        <h3>Aucune commande pour le moment</h3>
-        <p>Les commandes contenant vos produits apparaîtront ici</p>
+        @if (searchQuery()) {
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+            <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <h3>Aucun résultat trouvé</h3>
+          <p>Aucune commande ne correspond à "{{ searchQuery() }}"</p>
+          <button class="btn-clear" (click)="clearSearch()">Effacer la recherche</button>
+        } @else {
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/>
+            <rect x="8" y="2" width="8" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <h3>Aucune commande pour le moment</h3>
+          <p>Les commandes contenant vos produits apparaîtront ici</p>
+        }
       </div>
     } @else {
       <div class="orders-list">
-        @for (order of orders(); track order.id) {
+        @for (order of filteredOrders(); track order.id) {
           <div class="order-card">
             <div class="order-header">
               <div class="order-info">
-                <h3 class="order-number">Commande #{{ order.id }}</h3>
+                <h3 class="order-number">{{ getOrderNumber(order) }}</h3>
                 <span class="order-date">{{ order.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
               </div>
               <span class="badge" [ngClass]="getStatusBadgeClass(order.status)">
@@ -132,13 +170,21 @@
                   Détails
                 </a>
                 @if (order.status === 'PAID') {
-                  <button class="btn btn-sm btn-primary">
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <path d="M16 3h5v13h-2M16 16h3M1 16h11M1 16l4-9h11l4 9" stroke="currentColor" stroke-width="2"/>
-                      <circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/>
-                      <circle cx="16.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                    Marquer comme expédiée
+                  <button 
+                    class="btn btn-sm btn-primary"
+                    (click)="markAsShipped(order)"
+                    [disabled]="updatingOrderId() === order.id">
+                    @if (updatingOrderId() === order.id) {
+                      <span class="btn-spinner"></span>
+                      Mise à jour...
+                    } @else {
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M16 3h5v13h-2M16 16h3M1 16h11M1 16l4-9h11l4 9" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="16.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                      Marquer comme expédiée
+                    }
                   </button>
                 }
               </div>
